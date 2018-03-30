@@ -9,6 +9,8 @@ import org.inlighting.bean.ResponseBean;
 import org.inlighting.database.UserService;
 import org.inlighting.database.UserBean;
 import org.inlighting.exception.UnauthorizedException;
+import org.inlighting.model.User;
+import org.inlighting.service.UserMapperService;
 import org.inlighting.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,9 @@ public class WebController {
     private UserService userService;
 
     @Autowired
+    private UserMapperService userMapperService;
+
+    @Autowired
     public void setService(UserService userService) {
         this.userService = userService;
     }
@@ -29,6 +34,11 @@ public class WebController {
     @PostMapping("/login")
     public ResponseBean login(@RequestParam("username") String username,
                               @RequestParam("password") String password) {
+
+        User byUsername =
+                userMapperService.findByUsername(username);
+        System.out.println(byUsername);
+
         UserBean userBean = userService.getUser(username);
         if (userBean.getPassword().equals(password)) {
             return new ResponseBean(200, "Login success", JWTUtil.sign(username, password));

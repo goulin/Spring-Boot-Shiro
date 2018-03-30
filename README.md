@@ -1,3 +1,4 @@
+* 增加了mybaits-plus支持,但未接入realm
 # Shiro+JWT+Spring Boot Restful简易教程
 
 ### 序言
