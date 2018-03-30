@@ -35,8 +35,7 @@ public class WebController {
     public ResponseBean login(@RequestParam("username") String username,
                               @RequestParam("password") String password) {
 
-        User byUsername =
-                userMapperService.findByUsername(username);
+        User byUsername = userMapperService.findByUsername(username);
         System.out.println(byUsername);
 
         UserBean userBean = userService.getUser(username);
