@@ -1,3 +1,4 @@
+* 1.1 开始接入: realm接入mybatis进行校验
 * 增加了mybaits-plus支持,但未接入realm
 # Shiro+JWT+Spring Boot Restful简易教程
 
