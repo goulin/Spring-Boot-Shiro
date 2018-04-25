@@ -32,14 +32,15 @@ public class WebController {
     }
 
     @PostMapping("/login")
+    @ResponseBody
     public ResponseBean login(@RequestParam("username") String username,
                               @RequestParam("password") String password) {
 
         User byUsername = userMapperService.findByUsername(username);
         System.out.println(byUsername);
 
-        UserBean userBean = userService.getUser(username);
-        if (userBean.getPassword().equals(password)) {
+//        UserBean userBean = userService.getUser(username);
+        if (byUsername.getPassword().equals(password)) {
             return new ResponseBean(200, "Login success", JWTUtil.sign(username, password));
         } else {
             throw new UnauthorizedException();

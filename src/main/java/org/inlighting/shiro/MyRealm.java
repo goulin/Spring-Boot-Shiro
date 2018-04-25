@@ -9,6 +9,11 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.inlighting.database.UserService;
 import org.inlighting.database.UserBean;
+import org.inlighting.mapper.UserMapper;
+import org.inlighting.model.Permission;
+import org.inlighting.model.Role;
+import org.inlighting.model.User;
+import org.inlighting.service.UserMapperService;
 import org.inlighting.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,12 +27,8 @@ public class MyRealm extends AuthorizingRealm {
 
     private static final Logger LOGGER = LogManager.getLogger(MyRealm.class);
 
-    private UserService userService;
-
     @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
+    private UserMapperService userMapperService;
 
     /**
      * 大坑！，必须重写此方法，不然Shiro会报错
@@ -43,10 +44,24 @@ public class MyRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         String username = JWTUtil.getUsername(principals.toString());
-        UserBean user = userService.getUser(username);
+//        UserBean user = userService.getUser(username);
+        User byUsername = userMapperService.findByUsername(username);
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-        simpleAuthorizationInfo.addRole(user.getRole());
-        Set<String> permission = new HashSet<>(Arrays.asList(user.getPermission().split(",")));
+        Set<Role> roles = byUsername.getRoles();
+        StringBuffer role_sb = new StringBuffer();
+        Set<Permission> permissionSet = new HashSet<>();
+        for(Role r : roles){
+            role_sb.append(r.getRoleName()).append(",");
+            for(Permission p : r.getPermissions()){
+                permissionSet.add(p);
+            }
+        }
+        simpleAuthorizationInfo.addRole(role_sb.substring(0, role_sb.length()-1));
+        StringBuffer permission_sb = new StringBuffer();
+        for(Permission p : permissionSet){
+            permission_sb.append(p.getResource()).append(",");
+        }
+        Set<String> permission = new HashSet<>(Arrays.asList(permission_sb.substring(0,permission_sb.length()-1).split(",")));
         simpleAuthorizationInfo.addStringPermissions(permission);
         return simpleAuthorizationInfo;
     }
@@ -62,13 +77,12 @@ public class MyRealm extends AuthorizingRealm {
         if (username == null) {
             throw new AuthenticationException("token invalid");
         }
-
-        UserBean userBean = userService.getUser(username);
-        if (userBean == null) {
+        User byUsername = userMapperService.findByUsername(username);
+        if (byUsername == null) {
             throw new AuthenticationException("User didn't existed!");
         }
 
-        if (! JWTUtil.verify(token, username, userBean.getPassword())) {
+        if (! JWTUtil.verify(token, username, byUsername.getPassword())) {
             throw new AuthenticationException("Username or password error");
         }
 

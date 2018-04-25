@@ -145,7 +145,7 @@
     <!--<logger name="com.ibatis.common.jdbc.SimpleDataSource" value="DEBUG" />-->
     <!--<logger name="com.ibatis.common.jdbc.ScriptRunner" level="DEBUG"/>-->
     <!--<logger name="com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate" level="DEBUG" />-->
-    <logger name="com.example.sbmp.mapper" level="DEBUG" additivity="true">
+    <logger name="org.inlighting" level="DEBUG" additivity="true">
         <appender-ref ref="STDOUT"/>
     </logger>
 
